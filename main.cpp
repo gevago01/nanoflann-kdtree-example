@@ -79,9 +79,14 @@ long getFileStats(long &num_of_points, float &file_size, string filename) {
 std::set<uint32_t> getRandomIndices(long const num_of_points) {
     std::set<uint32_t> random_indices;
     srand(time(NULL));
-    while (random_indices.size() != MEASUREMENTS) {
+    int to=MEASUREMENTS;
+    if (num_of_points<MEASUREMENTS){
+        to=num_of_points;
+    }
+    while (random_indices.size() != to) {
         long randNum = rand() % (num_of_points);
         random_indices.insert(randNum);
+        cout<<"asd"<<random_indices.size()<< endl;
     }
 
     return random_indices;
@@ -191,6 +196,7 @@ int main(int argc, char **argv) {
     auto random_indices=getRandomIndices(num_of_points);
 
     for (auto index:random_indices){
+
         //index is just a number to index the vector of vectors
         cout << "looking for point:" << index << endl;
         auto coordinates=kdtree_points.at(index);
