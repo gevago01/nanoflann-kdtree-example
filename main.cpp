@@ -1,12 +1,3 @@
-#include <iostream>
-#include <tuple>
-#include <boost/version.hpp>
-#include <sys/types.h>
-#include <stdlib.h>
-#include "/usr/include/valgrind/callgrind.h"
-#include <stdio.h>
-#include <string.h>
-#include <sys/sysinfo.h>
 #include <chrono>
 #include <fstream>
 #include <sstream>
@@ -22,17 +13,23 @@ using std::vector;
 using std::string;
 using std::endl;
 
-//using KDTreeVectorOfVectorsAdaptor
 
 
-
-uint32_t getDimensionality(long &num_of_points, float &file_size, string filename) {
+/**
+ * The getFileStats function calculates the number of points in the file, its size and returns the dimensionality of the data.
+ * num_of_points is required to extract random point from the vector of vectors later
+ * @param num_of_points
+ * @param file_size
+ * @param filename
+ * @return
+ */
+long getFileStats(long &num_of_points, float &file_size, string filename) {
     /*figure out the size of the file*/
     std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
     file_size= in.tellg();
 
     std::ifstream in_file_stream(filename);
-    uint32_t dimensionality=0;
+    long dimensionality=0;
     if (!in_file_stream) {
         cout << "failed to read input" << endl;
         exit(-1);
@@ -70,16 +67,20 @@ uint32_t getDimensionality(long &num_of_points, float &file_size, string filenam
     }
 
 
-    std::cout << "num of points:" << num_of_points << std::endl;
     return dimensionality;
 
 }
 
+/**
+ * Gets a number of random indices. Those random indices are used later to retrieve random points from the vector of vectors
+ * @param num_of_points
+ * @return
+ */
 std::set<uint32_t> getRandomIndices(long const num_of_points) {
     std::set<uint32_t> random_indices;
     srand(time(NULL));
     while (random_indices.size() != MEASUREMENTS) {
-        int randNum = rand() % (num_of_points);
+        long randNum = rand() % (num_of_points);
         random_indices.insert(randNum);
     }
 
@@ -146,16 +147,12 @@ void readFile(vector<vector<double>> &all_points, string filename) {
 
         vector<double > coordinates;
         double one_dimension;
-        for (string record:tokens) {
-            one_dimension = std::stod(record);
+        for (string number:tokens) {
+            one_dimension = std::stod(number);
             coordinates.push_back(one_dimension);
         }
 
         all_points.push_back(coordinates);
-//        cluster_id = static_cast<long>(coordinates.back());
-//    cluster_id=static_cast<long>(id_generator);
-//        coordinates.pop_back();
-
 
         tokens.clear();
 
@@ -175,7 +172,7 @@ int main(int argc, char **argv) {
     std::chrono::high_resolution_clock::time_point t2;
 
 
-    int dimensionality = getDimensionality(num_of_points,file_size,argv[argc-1]);
+    long dimensionality = getFileStats(num_of_points, file_size, argv[argc - 1]);
 
     cout<<"Dimensionality is:"<<dimensionality<<endl;
     cout<<"Num of points:"<<num_of_points<<endl;
@@ -220,7 +217,7 @@ int main(int argc, char **argv) {
 //        for (auto d:ret_indexes){
 //            cout<<"retindex:"<<d<<endl;
 //        }
-        long cluster_id = mat_index.m_data[ret_indexes[0]][mat_index.m_data[ret_indexes[0]].size() - 1];
+        double cluster_id = mat_index.m_data[ret_indexes[0]][mat_index.m_data[ret_indexes[0]].size() - 1];
 
 
         t2 = std::chrono::high_resolution_clock::now();
